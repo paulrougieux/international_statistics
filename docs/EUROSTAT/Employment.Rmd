@@ -1,0 +1,204 @@
+Forest sector employment in the European Union
+========================================================
+This scripts loads forestry datasets from EUROSTAT and displays data.
+
+Original datasets and metadata can be viewed on the [eurostat website](http://epp.eurostat.ec.europa.eu/portal/page/portal/forestry/data/database). See also the Eurostat working group on [forestry statistics and accounts](https://circabc.europa.eu/w/browse/8be55496-f9fe-4c00-923e-bbebf52f0ec6).
+
+There was a change in classification in 2008. Therefore EUROSTAT has 2 employment tables for the forest sector: "for_emp_lfs1" Before 2008 and "for_emp_lfs" after 2008. We pull data from those 2 tables and mix them in some graph. Be aware that the employment figures before and after 2008 __are not comparable__. The difference by country for the year 2008 is computed in a table below.
+
+Table of content
+----------------
+* [Load data from EUROSTAT](#load)
+* [Clean data](#clean)
+* Plots
+ * [Employment by subsector in EU28](#empEU28)
+ * [Employment by subsector by country](#empCountry)
+* Maps Experimental --> See map3.1 for more details
+
+```{r echo=FALSE}
+# Set same path for knitr evaluation as for interactive use
+opts_knit$set(root.dir = '../..')
+```
+
+<a name="load"></a>
+Load data from EUROSTAT
+---------------------------------------
+```{r, eval=FALSE}
+library(SmarterPoland)
+library(ggplot2)
+library(xtable)
+for_emp_lfs = getEurostatRCV(kod = "for_emp_lfs")
+```
+
+
+```{r echo=FALSE}
+# The above code chunk is not evaluated.
+# The current script loads the dataset from a local file.
+# (Because it's a few seconds faster). No difference should be seen.
+# Load local dataset on computer. Skip this if you use getEurostatRCV() above.
+load("rawdata/EUROSTAT_forestry.RDATA")
+library(ggplot2)
+library(xtable)
+```
+
+Description of the forestry employment datasets
+(__for_emp_lfs1__ before 2008 and __for_emp_lfs__ after 2008) :
+* __unit__:
+* __sex__: female (F), male (M) or total (T)
+* __isced97__: education level
+* __wstatus__, working status: employed persons (EMP), employees (SAL), self employed persons (SELF)
+* __nace_r2__, sub sector of employment, forestry, manufacture of wood products or manufacture of paper products (see also below)
+* __geo__: geographical area
+* __time__: year
+* __value__: number of employed persons in thousand
+
+Sub-sectors of employment in forestry datasets:
+* Before 2008, in for_emp_lfs1 : `r unique(for_emp_lfs1$nace_r1)`
+* After 2008, in for_emp_lfs : `r unique(for_emp_lfs$nace_r2)`
+
+<a name="clean"></a>
+### Clean data
+```{r}
+# Change time to a numeric value
+for_emp_lfs1$time = as.numeric(as.character(for_emp_lfs1$time))
+for_emp_lfs$time = as.numeric(as.character(for_emp_lfs$time))
+
+# Add a readable description of subsector of employment.
+# Rename column and factor values. 
+# levels() keeps these columns as factor (The use of factors may not be needed).
+for_emp_lfs1$subsector = for_emp_lfs1$nace_r1
+levels(for_emp_lfs1$subsector)[levels(for_emp_lfs1$nace_r1)=="A0202"] = "Forestry and logging"
+levels(for_emp_lfs1$subsector)[levels(for_emp_lfs1$nace_r1)=="DD20"] = 
+    "Manufacture of wood products except furniture"
+levels(for_emp_lfs1$subsector)[levels(for_emp_lfs1$nace_r1)=="DE21"] = "Manufacture of paper products"
+
+# Same manipulation for data after 2008
+for_emp_lfs$subsector = for_emp_lfs$nace_r2
+levels(for_emp_lfs$subsector)[levels(for_emp_lfs$nace_r2)=="A02"] = "Forestry and logging"
+levels(for_emp_lfs$subsector)[levels(for_emp_lfs$nace_r2)=="C16"] = 
+    "Manufacture of wood products except furniture"
+levels(for_emp_lfs$subsector)[levels(for_emp_lfs$nace_r2)=="C17"] = "Manufacture of paper products"
+```
+
+
+Plots 
+-----
+<a name="empEU28"></a>
+### Employment by subsector in EU28
+Before 2001, there is no aggregated EU data, 
+however country level data is available (from 1992 onwards, see below).
+
+Number of employees before 2008 with subsector classification nace_r1
+```{r fig.width=12}
+EU28_r1 = subset(for_emp_lfs1, sex=="T" & isced97=="TOTAL" & wstatus=="EMP" & geo=="EU28" & time>2001 )
+p = ggplot() +
+    geom_point(data=EU28_r1, aes(x=time,y=value, color=subsector)) +
+    ylab("Thousand employees") 
+# plot(p) # Uncomment to plot only before 2008
+```
+
+Number of employees after 2008 with subsector classification nace_r2
+```{r fig.width=12}
+EU28 = subset(for_emp_lfs, sex=="T" & isced97=="TOTAL" & wstatus=="EMP" & geo=="EU28" )
+p + geom_point(data=EU28, aes(x=time,y=value, color=subsector)) 
+```
+
+
+<a name="empCountry"></a>
+### Employment by subsector by country
+Time series before 2008
+```{r fig.width=12}
+emp1 = subset(for_emp_lfs1, sex=="T" & isced97=="TOTAL" & wstatus=="EMP" & !is.na(value) &
+                 !geo %in% c("EA13", "EA17", "EA18", "EU15", "EU27", "EU28"))
+p =  ggplot() + geom_line(data=emp1, aes(x=time,y=value, color=subsector)) +
+    ylab("Thousand employees") +
+    scale_x_continuous(breaks=seq(1990,2010,10), limits=c(1990, 2013))
+# plot(p + facet_wrap(~geo)) # Uncomment to plot only before 2008
+```
+
+Time series before and after 2008
+```{r warning=FALSE, fig.width=12}
+# Select countries only
+emp = subset(for_emp_lfs, sex=="T" & isced97=="TOTAL" & wstatus=="EMP" & !is.na(value) &
+                 !geo %in% c("EA13", "EA17", "EA18", "EU15", "EU27", "EU28"))
+p = p + geom_line(data=emp, aes(x=time,y=value, color=subsector)) 
+```
+
+Plot employment by country with a fixed scale
+```{r fig.width=12}
+plot(p + facet_wrap(~geo))
+```
+
+Plot employment by country with a free scale
+```{r fig.width=12}
+plot(p + facet_wrap(~geo, scales = "free_y"))
+```
+
+### Compare 2008 values between first and second classification.
+```{r, results='asis'}
+emp1_8 = emp1[emp1$time==2008,c("subsector", "geo", "value")]
+emp$valueNewClassif = emp$value
+emp_8 = emp[emp$time==2008,c("subsector", "geo", "valueNewClassif")]
+empComp = merge(emp1_8,emp_8)
+
+empComp$diff = empComp$value - empComp$valueNewClassif
+empComp = transform(empComp,
+                    diff = valueNewClassif - value, 
+                    diffPercent = round((valueNewClassif - value)/value*100))
+print(xtable(empComp), row.names=FALSE, type = "html")
+```
+
+Maps
+----
+### Map of forest sector employment per 1000 ha of forest
+```{r eval=FALSE}
+
+library(maptools)
+library(ggplot2)
+library(ggmap)
+
+gpclibPermit() # Test if the General Polygon Clipping Library for R is there
+# gpclib is needed otherwise fortify() returns the Error: isTRUE(gpclibPermitStatus()) is not TRUE
+
+# read administrative boundaries (change folder appropriately)
+# Data from http://epp.eurostat.ec.europa.eu/portal/page/portal/gisco_Geographical_information_maps/popups/references/administrative_units_statistical_units_1
+eurMap = readShapePoly(fn="rawdata/NUTS_2010_60M_SH/data/NUTS_RG_60M_2010")
+# plot(eurMap) # Would draw the map of Europe at the NUTS-3 level.
+
+# Transform eurMap to a data frame for use with ggplot2
+eurMapDf = fortify(eurMap, region='NUTS_ID')
+
+# Read downloaded data (change folder appropriately)
+eurEdu <- read.csv("rawdata/educ_thexp_1_Data.csv", stringsAsFactors = F)
+eurEdu$Value <- as.double(eurEdu$Value) #format as numeric
+#################################
+# Merge map and Employment data #
+#################################
+# limit data to main Europe
+europe.limits <- geocode(c("Cape Fligely, Rudolf Island, Franz Josef Land, Russia", "Gavdos, Greece", "Faja Grande, Azores", "Severny Island, Novaya Zemlya, Russia"))
+
+eurMapDf <- subset(eurMapDf, long > min(europe.limits$lon) & long < max(europe.limits$lon) & lat > min(europe.limits$lat) & lat < max(europe.limits$lat))
+
+# Merge map and data
+emp2012 = subset(for_emp_lfs, sex=="T" & isced97=="TOTAL" & wstatus=="EMP" & !is.na(value) &
+                 !geo %in% c("EA13", "EA17", "EA18", "EU15", "EU27", "EU28") &
+                 time==2012 & nace_r2 == "A02")
+eurEmpMapDf = merge(eurMapDf, emp2012, by.x="id", by.y="geo")
+
+# limit data to main Europe
+eurEmpMapDf <- subset(eurEmpMapDf, long > min(europe.limits$lon) & long < max(europe.limits$lon) & lat > min(europe.limits$lat) & lat < max(europe.limits$lat))
+
+# Mapping
+m0 <- ggplot(data=eurEmpMapDf)
+m1 <- m0 + geom_polygon(aes(x=long, y=lat, group=group, fill=value)) + coord_equal()
+m2 <- m1 + geom_path(aes(x=long, y=lat, group=group), color='black')
+m2
+
+```
+
+
+
+Future visualisations
+---------------------
+* Map of forest sector employment per 1000 m^3
+* Employment by type (employee or self employed) and by sector
