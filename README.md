@@ -19,15 +19,16 @@ Employment data
 
 
 ### UN COMTRADE
-* See code/UNComtrade.R
+* See code/load_UNComtrade.R
+* [UN data API](https://www.undata-api.org/docs) provides downloadable datasets as JSON and XML files.
 
 
 ### FAOSTAT
-Use the FAOSTAT module. Lastest version on github.
+Use the [FAOSTAT package](https://github.com/mkao006/FAOSTATpackage). Lastest version on github.
 
 
 ### World Bank
-Use the FAOSTAT module.
+Use the [FAOSTAT package](https://github.com/mkao006/FAOSTATpackage).
 
 Folder structure
 --------------
