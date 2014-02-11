@@ -1,0 +1,27 @@
+Wood residues
+========================================================
+Following issue in Italy sent by Diana: 
+### Load data
+```{r}
+library(ggplot2)
+library(FAOSTAT)
+load("rawdata/residues.RDATA")
+rsd = residues$entity
+europe = subset(FAOregionProfile, UNSD_MACRO_REG=="Europe")
+```
+
+### Wood residues production in Europe (same scale)
+```{r fig.width=15, fig.height=10, warning=FALSE}
+ggplot(data=subset(rsd, FAOST_CODE %in% europe$FAOST_CODE & Year>1980 )) + 
+    aes(x=Year, y=Production) + geom_line() + facet_wrap(~Country) 
+```
+
+
+### Wood residues production in Europe (varying scale)
+```{r fig.width=15, fig.height=10, warning=FALSE}
+# remove NA values otherwise ggplot complains.
+rsd$Production[is.na(rsd$Production)] <- 0
+ggplot(data=subset(rsd, FAOST_CODE %in% europe$FAOST_CODE & Year>1980 )) + 
+    aes(x=Year, y=Production) + geom_line() + facet_wrap(~Country, scales = "free_y") 
+```
+
