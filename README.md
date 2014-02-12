@@ -48,3 +48,7 @@ The ./rawdata folder contains a .gitignore so that it's bulky content is not bac
 *
 !.gitignore
 ```
+
+Comments
+--------
+In docs/residues.Rmd remove countries with 0 production before plotting.
