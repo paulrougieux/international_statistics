@@ -102,13 +102,13 @@ m2
 ###############
 # Not working #
 ###############
-# over a GoogleMap (not working if not correctly projected)
-map <- get_map(location = 'Europe', zoom=4)
-m0 <- ggmap(map)
-m1 <- m0 + geom_polygon(aes(x=long, y=lat, group=group, fill=Value), data=eurEduMapDf, alpha=.9)
-m2 <- m1 + geom_path(aes(x=long, y=lat, group=group), data=eurEduMapDf, color='black')
-
-# add text
-library(doBy)
-txtVal <- summaryBy(long + lat + Value ~ id, data=eurEduMapDf, FUN=mean, keep.names=T)
-m3 <- m2 + geom_text(aes(x=long, y=lat, label=Value), data=txtVal, col="yellow", cex=3)
+# # over a GoogleMap (not working if not correctly projected)
+# map <- get_map(location = 'Europe', zoom=4)
+# m0 <- ggmap(map)
+# m1 <- m0 + geom_polygon(aes(x=long, y=lat, group=group, fill=Value), data=eurEduMapDf, alpha=.9)
+# m2 <- m1 + geom_path(aes(x=long, y=lat, group=group), data=eurEduMapDf, color='black')
+# 
+# # add text
+# library(doBy)
+# txtVal <- summaryBy(long + lat + Value ~ id, data=eurEduMapDf, FUN=mean, keep.names=T)
+# m3 <- m2 + geom_text(aes(x=long, y=lat, label=Value), data=txtVal, col="yellow", cex=3)

@@ -1,0 +1,55 @@
+
+
+```{r echo=FALSE}
+# This report template has to be called from knit_report.R
+# product_trade_data comes from knit_report.R
+
+```
+
+```{r eval=TRUE}
+ptd <- product_trade_data
+# remove "Others (adjustment)" and "unspecified" in the partner_country colunn
+ptd <- subset(ptd, !partner_country %in% c("Others (adjustment)", "Unspecified"))
+sorttrade <- function(dtf, year_, element_){
+    arrange(subset(dtf, year == year_ & element == element_), -value)
+    }
+
+# Total import in 2011
+major <- function(dtf, n=6){
+    dtf <- summarize(dtf, 
+                   Year = year,
+                   Country = partner_country, 
+                   Percent = paste0(round(value/sum(dtf$value)*100, 2),"%"),
+                   Volume_in_thousand_m3 = round(value/1e3))
+    print(xtable(head(dtf, n), digits=0), type = "html")
+    }
+```
+
+
+Major `r unique(ptd$item)` trade partners of `r unique(ptd$reporting_country)` 
+========================================================
+
+
+### 2000 Imports
+```{r, results='asis'}
+major(sorttrade(ptd, 2000, "Import Quantity"))
+```
+
+### 2000 Exports
+```{r, results='asis'}
+major(sorttrade(ptd, 2000, "Export Quantity"))
+```
+
+
+### `r max(ptd$year)` Imports
+```{r, results='asis'}
+last_imp <- sorttrade(ptd, max(ptd$year), "Import Quantity")
+major(last_imp)
+```
+
+### `r max(ptd$year) bli` Exports
+```{r, results='asis'}
+last_exp <- sorttrade(ptd, max(ptd$year), "Export Quantity")
+major(last_exp)
+```
+

@@ -1,0 +1,117 @@
+__Metadata:__
+* Author Paul Rougieux, European Forest Institute
+* Data source: FAOSTAT
+* Instructions to load data and libraries are indicated in the source file <a href="sawnwood.Rmd">sawnwood.Rmd</a>. 
+* More information in the <a href="../../README.html">readme</a>
+
+
+```{r load_data, echo=FALSE}
+setwd("../..")
+load("rawdata/sawnwood_trade_us.RDATA")
+```
+
+```{r libraries, echo=FALSE}
+library(ggplot2)
+library(plyr)
+library(xtable)
+opts_chunk$set(fig.width=11, echo=FALSE)
+```
+
+
+
+```{r}
+swdus <- sawnwood_trade_us
+swdus$partner_country <- as.character(swdus$partner_country)
+# remove "Others (adjustment)" and "unspecified" in the partner_country colunn
+swdus <- subset(swdus, !partner_country %in% c("Others (adjustment)", "Unspecified"))
+sorttrade <- function(dtf, year_, element_){
+    arrange(subset(dtf, year == year_ & element == element_), -value)
+    }
+```
+
+
+Major sawnwood trade partners of the `r unique(swdus$reporting_country)` 
+============================================================
+
+Tables
+------
+
+```{r, echo=FALSE}
+# Total import in 2011
+major <- function(dtf, n=6){
+    dtf <- summarize(dtf, 
+                   Year = year,
+                   Country = partner_country, 
+                   Percent = paste0(round(value/sum(dtf$value)*100, 2),"%"),
+                   Volume_in_thousand_m3 = round(value/1e3))
+    print(xtable(head(dtf, n), digits=0), type = "html")
+    }
+```
+
+### In 2000
+```{r, results='asis'}
+major(sorttrade(swdus, 2000, "Import Quantity"))
+major(sorttrade(swdus, 2000, "Export Quantity"))
+```
+
+### In `r max(swdus$year)`
+```{r, results='asis'}
+usimp <- sorttrade(swdus, max(swdus$year), "Import Quantity")
+usexp <- sorttrade(swdus, max(swdus$year), "Export Quantity")
+major(usimp)
+major(usexp)
+```
+
+
+Plots
+-----------
+### Canada alone
+```{r}
+ggplot(data=subset(swdus, partner_country == "Canada")) + 
+    aes(x=year, y=value/1e6, linetype=element) + geom_line() +
+    ylab(expression(paste("Trade volume in million ",m^3)))
+```
+
+#### heatmap
+```{r heatmapcanada, fig.height=2}
+ggplot(data=subset(swdus, partner_country == "Canada")) + 
+    aes(year, partner_country) +
+    geom_tile(aes(fill = value/1e6), colour = "white") +
+    facet_wrap(~element) +
+    scale_fill_gradient(low = "white", high = "chocolate4", 
+                        name = expression(paste("Trade volume in million ",m^3))) 
+```
+
+### Largest import + largest export partners except Canada
+```{r }
+big_imp_exp = c(head(usimp$partner_country), head(usexp$partner_country))
+ggplot(data=subset(swdus, partner_country != "Canada" &
+                   partner_country %in% big_imp_exp)) + 
+    aes(x=year, y=value/1e6, color=partner_country, linetype=element) +
+    geom_line() + facet_wrap(~ partner_country) + 
+    ylab(expression(paste("Trade volume in million ",m^3)))
+```
+
+#### heatmap
+```{r heatmap}
+# All countries except canada
+ggplot(data=subset(swdus, partner_country != "Canada" &
+                   partner_country %in% big_imp_exp)) + 
+    aes(year, partner_country) +
+    geom_tile(aes(fill = value/1e6), colour = "white") +
+    facet_wrap(~element) +
+    scale_fill_gradient(low = "white", high = "chocolate4", 
+                        name = expression(paste("Trade volume in million ",m^3))) 
+```
+
+
+### "Others (adjustment)" and "Unspecified" partner countries
+```{r}
+ggplot(data=subset(sawnwood_trade_us, 
+                   partner_country %in% c("Others (adjustment)", "Unspecified"))) + 
+    aes(x=year, y=value/1e6, color=partner_country, linetype=element) +
+    geom_line() + facet_wrap(~ partner_country) + 
+    ylab(expression(paste("Trade volume in million ",m^3)))
+```
+
+

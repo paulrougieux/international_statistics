@@ -1,5 +1,11 @@
 # See Michael Kao's example on Maize and wine trade
 # http://mkao006.blogspot.it/2013/02/maize-trade-part-ii-comparison-and.html
+library(plyr)
+library(network)
+
+
+
+#### Wine trade #####
 
 ## Download the data
 wine.df = read.csv("https://dl.dropbox.com/u/18161931/wine_trade.csv", header = TRUE,
@@ -28,3 +34,8 @@ plot(wine.net, displaylabels = TRUE, label.col = "steelblue",
      arrowhead.cex = c(wineFinal.df$arrowSize),
      label.cex = 0.5, vertex.border = "white",
      vertex.col = "skyblue", edge.col = rgb(0, 0, 0, alpha = 0.5))
+
+
+#### Roundwood trade #####
+# Download the data
+

@@ -11,7 +11,7 @@
 # using the FAOSTAT module
 # Author: Paul Rougieux, European Forest Institute
 
-require(FAOSTAT)
+library(FAOSTAT)
 
 FAO <- list() # A list of FAO functions and metadata
 
@@ -109,4 +109,5 @@ FAO$download <- function(item, elem1, elem2, elem3, elem4, elem5){
     FAO.lst$aggregates$Item <- FAO$itemname(item)
     return(FAO.lst)
 }
+
 
