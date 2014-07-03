@@ -67,10 +67,16 @@ Paul comments
 -------------
 
 ### PDF reports
-With the following commant I could make a pdf report from a markdown document, 
+With the following command I could make a pdf report from a markdown document, 
 but there is a problem with html tables 
 ```
 pandoc("docs/bilateral_trade/sawnwood.md", format='latex')
+```
+
+If [rmarkdown](https://github.com/rstudio/rmarkdown) is installed:
+```{r}
+require(rmarkdown)
+render("docs/bilateral_trade/sawnwood.Rmd", "pdf_document")
 ```
 
 
