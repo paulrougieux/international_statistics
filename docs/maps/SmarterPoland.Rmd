@@ -1,0 +1,110 @@
+SmarterPoland
+========================================================
+
+From [Smarter Poland Tutorial](http://muuankarski.github.io/workshop-tcwr-2014-03-07/tutorials/SmarterPoland_tutorial.html#load-the-gisco-shapefile-subset-it-to-nuts2-level-and-merge-the-eurostat-attribute-data-with-it-into-single-spatialpolygondataframe)
+
+# Move the loading part of this to code/load_shapefile.R
+
+Importing the data
+---------------
+```{r}
+library(SmarterPoland)
+df <- getEurostatRaw(kod = "ilc_mddd21")
+#
+names(df) <- c("xx", 2011:2003)
+
+df$unit <- lapply(strsplit(as.character(df$xx), ","), "[", 1)
+df$geo.time <- lapply(strsplit(as.character(df$xx), ","), "[", 2)
+
+df.l <- melt(data = df, id.vars = "geo.time", measure.vars = c("2003", "2004", 
+    "2005", "2006", "2007", "2008", "2009", "2010", "2011"))
+
+df.l$geo.time <- unlist(df.l$geo.time)  # unlist the geo.time variable
+
+```
+
+
+Load the GISCO shapefile
+------------------------
+Subset it to NUTS2-level and merge the Eurostat attribute data with it into single SpatialPolygonDataFrame
+```{r}
+download.file("http://epp.eurostat.ec.europa.eu/cache/GISCO/geodatafiles/NUTS_2010_60M_SH.zip", destfile="rawdata/NUTS_2010_60M_SH.zip")
+# unzip to SpatialPolygonsDataFrame
+unzip("rawdata/NUTS_2010_60M_SH.zip", exdir="rawdata")
+library(rgdal)
+
+map <- readOGR(dsn = "rawdata/NUTS_2010_60M_SH/data", layer = "NUTS_RG_60M_2010")
+# as the data is at NUTS2-level, we subset the spatialpolygondataframe
+map_nuts2 <- subset(map, STAT_LEVL_ <= 2)
+# dim show how many regions are in the spatialpolygondataframe
+dim(map_nuts2)
+# dim show how many regions are in the data.frame
+dim(df)
+# Spatial dataframe has 467 rows and attribute data 223. 
+# We need to make attribute data to have similar number of rows
+NUTS_ID <- as.character(map_nuts2$NUTS_ID)
+VarX <- rep("empty", 467)
+dat <- data.frame(NUTS_ID,VarX)
+# then we shall merge this with Eurostat data.frame
+dat2 <- merge(dat,df,by.x="NUTS_ID",by.y="geo.time", all.x=TRUE)
+## merge this manipulated attribute data with the spatialpolygondataframe
+# there are still duplicates in the data, remove them
+dat2$dup <- duplicated(dat2$NUTS_ID)
+dat3 <- subset(dat2, dup == FALSE)
+## rownames
+row.names(dat3) <- dat3$NUTS_ID
+row.names(map_nuts2) <- as.character(map_nuts2$NUTS_ID)
+## order data
+dat3 <- dat3[order(row.names(dat3)), ]
+map_nuts2 <- map_nuts2[order(row.names(map_nuts2)), ]
+## join
+library(maptools)
+shape <- spCbind(map_nuts2, dat3)
+```
+
+
+
+Munging the shapefile into data.frame and ready for ggplot-plotting
+----------------------------------------------------------------
+```{r}
+## fortify spatialpolygondataframe into data.frame
+library(ggplot2)
+library(rgeos)
+shape$id <- rownames(shape@data)
+map.points <- fortify(shape, region = "id")
+map.df <- merge(map.points, shape, by = "id")
+# As we want to plot map faceted by years from 2003 to 2011
+# we have to melt it into long format
+library(reshape2)
+map.df.l <- melt(data = map.df, id.vars = c("id","long","lat","group"), 
+                 measure.vars = c("X2003", "X2004",
+                                  "X2005", "X2006", 
+                                  "X2007", "X2008", 
+                                  "X2009", "X2010", "X2011"))
+# year variable (variable) is class string and type X20xx. 
+# Lets remove the X and convert it to numerical
+library(stringr)
+map.df.l$variable <- str_replace_all(map.df.l$variable, "X","")
+map.df.l$variable <- factor(map.df.l$variable)
+map.df.l$variable <- as.numeric(levels(map.df.l$variable))[map.df.l$variable]
+```
+
+
+And finally the plot using ggplot2
+----------------------------------
+Map shows proportion of materially deprived households at the NUTS2 level. Grey color indicates missing data.
+
+```{r}
+library(ggplot2)
+# plot faceted by year
+ggplot(map.df.l, aes(long,lat,group=group)) +
+  geom_polygon(aes(fill = value)) +
+  geom_polygon(data = map.df.l, aes(long,lat), 
+               fill=NA, 
+               color = "white",
+               size=0.1) + # white borders
+  coord_map(project="orthographic", xlim=c(-22,34),
+              ylim=c(35,70)) + # projection
+  facet_wrap(~variable, ncol=2) +
+  theme_minimal()
+```

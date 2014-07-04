@@ -3,3 +3,5 @@
 *.html
 *.png
 
+# Ignore Excel experiment
+docs/bilateral_trade_excel/

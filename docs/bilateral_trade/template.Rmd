@@ -3,13 +3,15 @@
 ```{r echo=FALSE}
 # This report template has to be called from knit_report.R
 # product_trade_data comes from knit_report.R
-
+library(ggplot2)
 ```
 
-```{r eval=TRUE}
+```{r functions, eval=TRUE}
 ptd <- product_trade_data
 # remove "Others (adjustment)" and "unspecified" in the partner_country colunn
 ptd <- subset(ptd, !partner_country %in% c("Others (adjustment)", "Unspecified"))
+
+
 sorttrade <- function(dtf, year_, element_){
     arrange(subset(dtf, year == year_ & element == element_), -value)
     }
@@ -23,6 +25,7 @@ major <- function(dtf, n=6){
                    Volume_in_thousand_m3 = round(value/1e3))
     print(xtable(head(dtf, n), digits=0), type = "html")
     }
+
 ```
 
 
@@ -47,9 +50,51 @@ last_imp <- sorttrade(ptd, max(ptd$year), "Import Quantity")
 major(last_imp)
 ```
 
-### `r max(ptd$year) bli` Exports
+### `r max(ptd$year)` Exports
 ```{r, results='asis'}
 last_exp <- sorttrade(ptd, max(ptd$year), "Export Quantity")
 major(last_exp)
 ```
+
+
+Plots
+-----------
+### Largest import + largest export partners 
+This is based only on the last available year. 
+May have to change this for the last 10 years 
+for countries where trade partners change a lot.
+
+```{r timelineMajor}
+impo <- sorttrade(ptd, max(ptd$year), "Import Quantity")
+expo <- sorttrade(ptd, max(ptd$year), "Export Quantity")
+# large exporter and importer 
+big_imp_exp = c(head(impo$partner_country), head(expo$partner_country))
+
+ggplot(data=subset(ptd, partner_country %in% big_imp_exp)) + 
+    aes(x=year, y=value/1e3, color=partner_country, linetype=element) +
+    geom_line() + facet_wrap(~ partner_country) + 
+     ylab(expression(paste("Trade volume in 1000",m^3)))
+```
+
+#### heatmap
+```{r heatmap2}
+# All countries except canada
+ggplot(data=subset(ptd, partner_country %in% big_imp_exp)) + 
+    aes(year, partner_country) +
+    geom_tile(aes(fill = value/1e3), colour = "white") +
+    facet_wrap(~element) +
+    scale_fill_gradient(low = "white", high = "chocolate4", 
+                        name = expression(paste("Trade volume in 1000 ",m^3))) 
+```
+
+
+### "Others (adjustment)" and "Unspecified" partner countries
+```{r timelineAdjustment}
+ggplot(data=subset(product_trade_data, 
+                   partner_country %in% c("Others (adjustment)", "Unspecified"))) + 
+    aes(x=year, y=value/1e3, color=partner_country, linetype=element) +
+    geom_line() + facet_wrap(~ partner_country) + 
+    ylab(expression(paste("Trade volume in 1000 ",m^3)))
+```
+
 

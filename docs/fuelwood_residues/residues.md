@@ -38,6 +38,8 @@ rsd <- subset(residues$entity, FAOST_CODE %in% europe$FAOST_CODE)
 wfr <- rbind(rsd[c("FAOST_CODE", "Country", "Year", "Production", "Item")], 
              subset(woodfuelC$entity, FAOST_CODE %in% europe$FAOST_CODE),
              subset(woodfuelNC$entity, FAOST_CODE %in% europe$FAOST_CODE))
+# delete 0 and NA production values
+wfr <- subset(wfr, !is.na(Production) & !Production==0)
 ```
 
 

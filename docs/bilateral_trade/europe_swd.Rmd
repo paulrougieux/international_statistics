@@ -1,0 +1,90 @@
+Europe
+========================================================
+
+There are large discrepancies between reported import and export volumes.
+Should we restric to a year? see France section below
+
+```{r}
+setwd("../..")
+load("enddata/sawnwood_flows_Europe.RDATA")
+library(plyr)
+library(ggplot2)
+library(reshape2)
+```
+
+
+# EU Trade Flows 
+### from `r min(sawnwood_europe$year)` to `r max(sawnwood_europe$year)`
+```{r results='asis'}
+# Total volumes reported by EU countries to other non EU countries
+tfeu2o <- ddply(subset(sawnwood_europe, reporting_EU & !partner_EU),
+                .(item, element), summarise, value_EU = sum(value) )
+
+# Total volumes reported by other countries - an EU country is their partner
+tfo2eu <- ddply(subset(sawnwood_europe, !reporting_EU & partner_EU),
+                .(item, element), summarise, value_partner = sum(value) )
+
+tfo2eu$element <- sub("Export", "aaa", tfo2eu$element)
+tfo2eu$element <- sub("Import", "Export", tfo2eu$element)
+tfo2eu$element <- sub("aaa", "Import", tfo2eu$element)
+tfeu <- mutate(merge(tfeu2o, tfo2eu), 
+               diff_reporting_partner = value_EU - value_partner,
+               diff_percent = diff_reporting_partner/value_EU*100) 
+# Ther is certainly somehting wrong with these figures.
+kable(tfeu)
+```
+
+
+# In 2011
+```{r}
+
+```
+
+# Trade flows from France to EU countries
+```{r}
+# Total volumes reported by France to EU 
+ddply(subset(sawnwood_europe, reporting_country=="France" & partner_EU &
+                 year==2011),
+      .(item, element), summarise, value_France = sum(value) )
+
+# Total volumes reported by other EU countries - France is their partner
+ddply(subset(sawnwood_europe, reporting_EU & partner_country=="France" & 
+                 year==2011),
+      .(item, element), summarise, value_partner = sum(value) )
+```
+
+### Trade flows from France to EU countries all years
+How about trade flows with the rest of the world?
+```{r fig.width=11}
+# Put this into a function
+# plot_tf_eu
+# tfc2eu 
+# tfeu2c
+
+# Total volumes reported by France to EU 
+tffreu <- ddply(subset(sawnwood_europe, reporting_country=="France" & partner_EU),
+             .(item, element, year), summarise, value_France = sum(value) )
+
+# Total volumes reported by other EU countries - France is their partner
+tfeufr <- ddply(subset(sawnwood_europe, reporting_EU & partner_country=="France"),
+      .(item, element, year), summarise, value_partner = sum(value) )
+
+# Replace "Export" by "Import"
+tfeufr$element <- sub("Export", "aaa", tfeufr$element)
+tfeufr$element <- sub("Import", "Export", tfeufr$element)
+tfeufr$element <- sub("aaa", "Import", tfeufr$element)
+tffr <- merge(tffreu, tfeufr)
+
+ggplot(data = tffr) +
+    geom_point(aes(x = year, y = value_France, col="Reported by France")) + 
+    geom_point(aes(x=year, y=value_partner, col="Reported by EU partners")) +
+    facet_grid(element ~ item, scales="free_y")
+```
+
+### Table of Differences 
+```{r results='asis'}
+tffr <- mutate(tffr, diff_France_partner = value_France - value_partner)
+# These could be written to Excel
+kable(dcast(tffr[c("item", "element", "year", "diff_France_partner")],
+                  item + element ~ year, value.var = "diff_France_partner"))
+```
