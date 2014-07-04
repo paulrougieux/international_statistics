@@ -3,7 +3,7 @@
 # Functions copied from other project:
 # forestproductsdemand 
 # https://github.com/paul4forest/forestproductsdemand
-# Edit original verion there firts
+# Edit original verion there
 #
 
 #
@@ -19,7 +19,8 @@ FAO <- list() # A list of FAO functions and metadata
 # FAO metadata #
 ################
 # Element contain the production and trade flow codes
-FAO$elementTable <- subset(FAOmetaTable$elementTable, domainCode=="FO")
+FAO$elementTable <- subset(FAOmetaTable$elementTable, 
+                           domainCode%in% c("FO","FT"))
 
 # Item contain the product codes 
 FAO$itemTable <- subset(FAOmetaTable$itemTable, domainCode=="FO")

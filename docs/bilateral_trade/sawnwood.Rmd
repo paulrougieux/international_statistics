@@ -1,8 +1,8 @@
 __Metadata:__
 * Author Paul Rougieux, European Forest Institute
 * Data source: FAOSTAT
-* Instructions to load data and libraries are indicated in the source file <a href="sawnwood.Rmd">sawnwood.Rmd</a>. 
-* More information in the <a href="../../README.html">readme</a>
+* Instructions to load data and libraries are indicated in the source file [sawnwood.Rmd](sawnwood.Rmd). 
+* More information in the [readme](../../README.html)
 
 
 ```{r load_data, echo=FALSE}

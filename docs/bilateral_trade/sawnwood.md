@@ -1,8 +1,8 @@
 __Metadata:__
 * Author Paul Rougieux, European Forest Institute
 * Data source: FAOSTAT
-* Instructions to load data and libraries are indicated in the source file <a href="sawnwood.Rmd">sawnwood.Rmd</a>. 
-* More information in the <a href="../../README.html">readme</a>
+* Instructions to load data and libraries are indicated in the source file [sawnwood.Rmd](sawnwood.Rmd). 
+* More information in the [readme](../../README.html)
 
 
 
@@ -11,18 +11,6 @@ __Metadata:__
 
 
 
-* [figure](figure)
- * [heatmap.png](figure/heatmap.png)
- * [heatmapcanada.png](figure/heatmapcanada.png)
- * [unnamed-chunk-2.png](figure/unnamed-chunk-2.png)
- * [unnamed-chunk-3.png](figure/unnamed-chunk-3.png)
- * [unnamed-chunk-4.png](figure/unnamed-chunk-4.png)
- * [unnamed-chunk-41.png](figure/unnamed-chunk-41.png)
- * [unnamed-chunk-42.png](figure/unnamed-chunk-42.png)
- * [unnamed-chunk-5.png](figure/unnamed-chunk-5.png)
- * [unnamed-chunk-6.png](figure/unnamed-chunk-6.png)
- * [unnamed-chunk-7.png](figure/unnamed-chunk-7.png)
- * [unnamed-chunk-8.png](figure/unnamed-chunk-8.png)
 
 
 
@@ -40,7 +28,7 @@ Tables
 
 ### In 2000
 <!-- html table generated in R 3.0.2 by xtable 1.7-1 package -->
-<!-- Tue Apr 01 15:36:01 2014 -->
+<!-- Fri Apr 04 12:04:52 2014 -->
 <TABLE border=1>
 <TR> <TH>  </TH> <TH> Year </TH> <TH> Country </TH> <TH> Percent </TH> <TH> Volume_in_thousand_m3 </TH>  </TR>
   <TR> <TD align="right"> 1 </TD> <TD align="right"> 2000 </TD> <TD> Canada </TD> <TD> 94.32% </TD> <TD align="right"> 46800 </TD> </TR>
@@ -51,7 +39,7 @@ Tables
   <TR> <TD align="right"> 6 </TD> <TD align="right"> 2000 </TD> <TD> Austria </TD> <TD> 0.47% </TD> <TD align="right"> 232 </TD> </TR>
    </TABLE>
 <!-- html table generated in R 3.0.2 by xtable 1.7-1 package -->
-<!-- Tue Apr 01 15:36:01 2014 -->
+<!-- Fri Apr 04 12:04:52 2014 -->
 <TABLE border=1>
 <TR> <TH>  </TH> <TH> Year </TH> <TH> Country </TH> <TH> Percent </TH> <TH> Volume_in_thousand_m3 </TH>  </TR>
   <TR> <TD align="right"> 1 </TD> <TD align="right"> 2000 </TD> <TD> Japan </TD> <TD> 22.51% </TD> <TD align="right"> 710 </TD> </TR>
@@ -65,7 +53,7 @@ Tables
 
 ### In 2011
 <!-- html table generated in R 3.0.2 by xtable 1.7-1 package -->
-<!-- Tue Apr 01 15:36:02 2014 -->
+<!-- Fri Apr 04 12:04:52 2014 -->
 <TABLE border=1>
 <TR> <TH>  </TH> <TH> Year </TH> <TH> Country </TH> <TH> Percent </TH> <TH> Volume_in_thousand_m3 </TH>  </TR>
   <TR> <TD align="right"> 1 </TD> <TD align="right"> 2011 </TD> <TD> Canada </TD> <TD> 77.98% </TD> <TD align="right"> 9548 </TD> </TR>
@@ -76,7 +64,7 @@ Tables
   <TR> <TD align="right"> 6 </TD> <TD align="right"> 2011 </TD> <TD> Brazil </TD> <TD> 0.63% </TD> <TD align="right"> 77 </TD> </TR>
    </TABLE>
 <!-- html table generated in R 3.0.2 by xtable 1.7-1 package -->
-<!-- Tue Apr 01 15:36:02 2014 -->
+<!-- Fri Apr 04 12:04:52 2014 -->
 <TABLE border=1>
 <TR> <TH>  </TH> <TH> Year </TH> <TH> Country </TH> <TH> Percent </TH> <TH> Volume_in_thousand_m3 </TH>  </TR>
   <TR> <TD align="right"> 1 </TD> <TD align="right"> 2011 </TD> <TD> China </TD> <TD> 48.38% </TD> <TD align="right"> 1680 </TD> </TR>
@@ -92,7 +80,7 @@ Tables
 Plots
 -----------
 ### Canada alone
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 
 #### heatmap
@@ -100,7 +88,7 @@ Plots
 
 
 ### Largest import + largest export partners except Canada
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
 
 
 #### heatmap
@@ -109,7 +97,7 @@ Plots
 
 
 ### "Others (adjustment)" and "Unspecified" partner countries
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
 
 
 
